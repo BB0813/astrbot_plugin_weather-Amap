@@ -23,15 +23,22 @@ CURRENT_WEATHER_TEMPLATE = """
     html, body {
       margin: 0;
       padding: 0;
+      width: 800px; /* 确保匹配 render 预设的图片尺寸 */
+      height: 600px;
       background-color: #fff;
     }
     .weather-container {
-      width: 720px;
-      margin: 0;
+      width: 100%;
+      height: 100%;
       padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* 确保内容垂直居中 */
+      align-items: center; /* 水平居中 */
       background-color: #ffffff;
       color: #333;
       font-family: sans-serif;
+      font-size: 24px; /* 确保字体大小适配 render 函数 */
       border: 1px solid #ddd;
       border-radius: 8px;
     }
@@ -39,15 +46,16 @@ CURRENT_WEATHER_TEMPLATE = """
       margin-top: 0;
       color: #4e6ef2;
       text-align: center;
+      font-size: 32px; /* 调大字体 */
     }
     .weather-info {
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     .source-info {
       border-top: 1px solid #ddd;
       margin-top: 12px;
       padding-top: 12px;
-      font-size: 12px;
+      font-size: 16px;
       color: #999;
     }
   </style>
@@ -63,8 +71,7 @@ CURRENT_WEATHER_TEMPLATE = """
       <strong>天气:</strong> {{ desc }}
     </div>
     <div class="weather-info">
-      <strong>温度:</strong> {{ temp }}℃
-      <span style="font-size: 12px; color: #888;">(体感: {{ feels_like }}℃)</span>
+      <strong>温度:</strong> {{ temp }}℃ (体感: {{ feels_like }}℃)
     </div>
     <div class="weather-info">
       <strong>湿度:</strong> {{ humidity }}%
@@ -90,15 +97,22 @@ FORECAST_TEMPLATE = """
     html, body {
       margin: 0;
       padding: 0;
+      width: 800px;
+      height: 600px;
       background-color: #fff;
     }
     .forecast-container {
-      width: 720px;
-      margin: 0;
+      width: 100%;
+      height: 100%;
       padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       background-color: #fff;
       color: #333;
       font-family: sans-serif;
+      font-size: 22px;
       border: 1px solid #ddd;
       border-radius: 8px;
     }
@@ -106,34 +120,23 @@ FORECAST_TEMPLATE = """
       margin-top: 0;
       color: #4e6ef2;
       text-align: center;
+      font-size: 32px;
     }
     .city-info {
       margin-bottom: 8px;
     }
     .day-item {
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       border-bottom: 1px solid #eee;
-      padding-bottom: 8px;
+      padding-bottom: 4px;
     }
     .day-title {
       font-weight: bold;
       color: #4e6ef2;
       margin-bottom: 4px;
     }
-    .suggestion-section {
-      border-top: 1px solid #eee;
-      margin-top: 12px;
-      padding-top: 12px;
-    }
-    .suggestion-section h3 {
-      color: #f2824b;
-      margin: 0 0 8px 0;
-    }
-    .suggestion-item {
-      margin-bottom: 4px;
-    }
     .source-info {
-      font-size: 12px;
+      font-size: 16px;
       color: #999;
       margin-top: 12px;
       border-top: 1px solid #ddd;
@@ -156,21 +159,6 @@ FORECAST_TEMPLATE = """
       <div><strong>湿度:</strong> {{ day.humidity }}%  <strong>风速:</strong> {{ day.wind_speed }} km/h</div>
     </div>
     {% endfor %}
-
-    {% if suggestions %}
-    <div class="suggestion-section">
-      <h3>生活指数</h3>
-      {% for item in suggestions %}
-      <div class="suggestion-item">
-        <strong>{{ item.name }}:</strong> {{ item.brief }}
-      </div>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div style="margin-top: 12px; font-style: italic; color: #999;">
-      暂无生活指数信息
-    </div>
-    {% endif %}
 
     <div class="source-info">
       数据来源: 心知天气（Seniverse） 免费API
