@@ -1,0 +1,14 @@
+{
+    "openweather_api_key": {
+        "description": "OpenWeatherMap API Key",
+        "type": "string",
+        "hint": "请前往 https://openweathermap.org/ 注册并获取 API Key",
+        "obvious_hint": true
+    },
+    "default_city": {
+        "description": "默认城市",
+        "type": "string",
+        "hint": "当用户没有输入城市时，将使用此配置查询天气",
+        "default": "上海"
+    }
+}
