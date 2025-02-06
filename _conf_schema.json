@@ -1,8 +1,8 @@
 {
     "openweather_api_key": {
-        "description": "OpenWeatherMap API Key",
+        "description": "心知天气 API Key",
         "type": "string",
-        "hint": "请前往 https://openweathermap.org/ 注册并获取 API Key",
+        "hint": "请前往 https://www.seniverse.com/dashboard 注册并获取 API Key",
         "obvious_hint": true
     },
     "default_city": {
