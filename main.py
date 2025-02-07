@@ -23,8 +23,8 @@ CURRENT_WEATHER_TEMPLATE = """
     html, body {
       margin: 0;
       padding: 0;
-      width: 800px; /* 确保匹配 render 预设的图片尺寸 */
-      height: 600px;
+      width: 1280px; /* 确保匹配 render 预设的图片尺寸 */
+      height: 7200px;
       background-color: #fff;
     }
     .weather-container {
@@ -97,8 +97,8 @@ FORECAST_TEMPLATE = """
     html, body {
       margin: 0;
       padding: 0;
-      width: 800px;
-      height: 600px;
+      width: 1280px;
+      height: 720px;
       background-color: #fff;
     }
     .forecast-container {
