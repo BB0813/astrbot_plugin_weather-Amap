@@ -30,7 +30,7 @@ CURRENT_WEATHER_TEMPLATE = """
     .weather-container {
       width: 100%;
       height: 100%;
-      padding: 16px;
+      padding: 8px;
       display: flex;
       flex-direction: column;
       justify-content: center; /* 确保内容垂直居中 */
@@ -38,7 +38,7 @@ CURRENT_WEATHER_TEMPLATE = """
       background-color: #ffffff;
       color: #333;
       font-family: sans-serif;
-      font-size: 24px; /* 确保字体大小适配 render 函数 */
+      font-size: 30px; /* 确保字体大小适配 render 函数 */
       border: 1px solid #ddd;
       border-radius: 8px;
     }
@@ -46,7 +46,7 @@ CURRENT_WEATHER_TEMPLATE = """
       margin-top: 0;
       color: #4e6ef2;
       text-align: center;
-      font-size: 32px; /* 调大字体 */
+      font-size: 40px; /* 调大字体 */
     }
     .weather-info {
       margin-bottom: 10px;
@@ -104,7 +104,7 @@ FORECAST_TEMPLATE = """
     .forecast-container {
       width: 100%;
       height: 100%;
-      padding: 16px;
+      padding: 8px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -112,7 +112,7 @@ FORECAST_TEMPLATE = """
       background-color: #fff;
       color: #333;
       font-family: sans-serif;
-      font-size: 22px;
+      font-size: 30px;
       border: 1px solid #ddd;
       border-radius: 8px;
     }
@@ -120,7 +120,7 @@ FORECAST_TEMPLATE = """
       margin-top: 0;
       color: #4e6ef2;
       text-align: center;
-      font-size: 32px;
+      font-size: 40px;
     }
     .city-info {
       margin-bottom: 8px;
