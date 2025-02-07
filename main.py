@@ -24,7 +24,7 @@ CURRENT_WEATHER_TEMPLATE = """
       margin: 0;
       padding: 0;
       width: 1280px; /* 确保匹配 render 预设的图片尺寸 */
-      height: 7200px;
+      height: 720px;
       background-color: #fff;
     }
     .weather-container {
