@@ -292,9 +292,11 @@ class WeatherPlugin(Star):
     # =============================
     @llm_tool(name="get_current_weather")
     async def get_current_weather_tool(self, event: AstrMessageEvent, city: str) -> MessageEventResult:
-        """
-        LLM 工具：获取当前天气并返回图片
-        """
+        '''获取天气信息。
+
+        Args:
+            city (string): 地点，例如：杭州，或者浙江杭州
+        '''
         if not city:
             city = self.default_city
 
@@ -308,9 +310,11 @@ class WeatherPlugin(Star):
 
     @llm_tool(name="get_forecast_weather")
     async def get_forecast_weather_tool(self, event: AstrMessageEvent, city: str) -> MessageEventResult:
-        """
-        LLM 工具：获取未来3天天气+生活指数，并返回图片
-        """
+        '''获取天气预报信息。
+
+        Args:
+            city (string): 地点，例如：杭州，或者浙江杭州
+        '''
         if not city:
             city = self.default_city
 
