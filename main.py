@@ -173,7 +173,7 @@ FORECAST_TEMPLATE = """
     "seniverse_weather_plugin",
     "w33d",
     "一个基于心知天气（Seniverse）免费API的天气查询插件",
-    "1.0.0",
+    "2.1.0",
     "https://github.com/Last-emo-boy/astrbot_plugin_weather"
 )
 class WeatherPlugin(Star):
