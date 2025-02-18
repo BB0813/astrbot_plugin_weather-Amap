@@ -1,5 +1,5 @@
 {
-    "openweather_api_key": {
+    "seniverse_api_key": {
         "description": "心知天气 API Key",
         "type": "string",
         "hint": "请前往 https://www.seniverse.com/dashboard 注册并获取 API Key",
@@ -10,5 +10,12 @@
         "type": "string",
         "hint": "当用户没有输入城市时，将使用此配置查询天气",
         "default": "上海"
+    },
+    "send_mode": {
+        "description": "发送模式",
+        "type": "string",
+        "options": ["text", "image"],
+        "default": "image",
+        "hint": "选择以纯文本还是图片形式发送天气信息"
     }
 }
