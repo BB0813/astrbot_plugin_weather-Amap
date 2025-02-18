@@ -15,7 +15,7 @@
         "description": "发送模式",
         "type": "string",
         "options": ["text", "image"],
-        "default": "image",
+        "default": "text",
         "hint": "选择以纯文本还是图片形式发送天气信息"
     }
 }
