@@ -160,7 +160,7 @@ FORECAST_TEMPLATE = """
     {% endfor %}
 
     <div class="source-info">
-      数据来源: 心知天气（Seniverse） 免费API
+      数据来源: 高德开放平台（Amap） 免费API
     </div>
   </div>
 </body>
@@ -168,26 +168,26 @@ FORECAST_TEMPLATE = """
 """
 
 @register(
-    "astrbot_plugin_weather",
-    "w33d",
-    "一个基于心知天气（Seniverse）免费API的天气查询插件",
-    "2.1.1",
-    "https://github.com/Last-emo-boy/astrbot_plugin_weather"
+    "astrbot_plugin_weather-Amap",
+    "BB0813",
+    "一个基于高德开放平台API的天气查询插件",
+    "1.0.0",
+    "https://github.com/BB0813/astrbot_plugin_weather-Amap"
 )
 class WeatherPlugin(Star):
     """
-    这是一个调用心知天气（Seniverse）免费版 API 的天气查询插件示例。
+    这是一个调用高德开放平台API的天气查询插件示例。
     支持 /weather current /weather forecast /weather help
     - current: 查询当前实况
-    - forecast: 查询未来3天天气预报及生活指数
+    - forecast: 查询未来4天天气预报
     """
     def __init__(self, context: Context, config: dict):
         super().__init__(context)
         self.logger = logging.getLogger("WeatherPlugin")
         self.logger.setLevel(logging.DEBUG)
         self.config = config
-        # 使用配置中的 seniverse_api_key
-        self.api_key = config.get("seniverse_api_key", "")
+        # 使用配置中的 amap_api_key
+        self.api_key = config.get("amap_api_key", "")
         self.default_city = config.get("default_city", "北京")
         # 新增配置项：send_mode，控制发送模式 "image" 或 "text"
         self.send_mode = config.get("send_mode", "image")
@@ -217,7 +217,7 @@ class WeatherPlugin(Star):
         if not city:
             city = self.default_city
         if not self.api_key:
-            yield event.plain_result("未配置 Seniverse API Key，无法查询天气。请在管理面板中配置后再试。")
+            yield event.plain_result("未配置 Amap API Key，无法查询天气。请在管理面板中配置后再试。")
             return
         data = await self.get_current_weather_by_city(city)
         if data is None:
@@ -232,7 +232,7 @@ class WeatherPlugin(Star):
                 f"当前天气：\n"
                 f"城市: {data['city']}\n"
                 f"天气: {data['desc']}\n"
-                f"温度: {data['temp']}℃ (体感: {data['feels_like']}℃)\n"
+                f"温度: {data['temp']}℃\n"
                 f"湿度: {data['humidity']}%\n"
                 f"风速: {data['wind_speed']} km/h"
             )
@@ -241,7 +241,7 @@ class WeatherPlugin(Star):
     @weather_group.command("forecast")
     async def weather_forecast(self, event: AstrMessageEvent, city: Optional[str] = None):
         """
-        查看未来3天天气预报及生活指数
+        查看未来4天天气预报
         用法: /weather forecast <城市>
         示例: /weather forecast 北京
         """
@@ -249,7 +249,7 @@ class WeatherPlugin(Star):
         if not city:
             city = self.default_city
         if not self.api_key:
-            yield event.plain_result("未配置 Seniverse API Key，无法查询天气。请在管理面板中配置后再试。")
+            yield event.plain_result("未配置 Amap API Key，无法查询天气。请在管理面板中配置后再试。")
             return
         forecast_data = await self.get_forecast_weather_by_city(city)
         if forecast_data is None:
@@ -287,9 +287,9 @@ class WeatherPlugin(Star):
         """
         self.logger.info("User called /weather help")
         msg = (
-            "=== 心知天气插件命令列表 ===\n"
+            "=== 高德开放平台插件命令列表 ===\n"
             "/weather current <城市>  查看当前实况\n"
-            "/weather forecast <城市> 查看未来3天天气预报及生活指数\n"
+            "/weather forecast <城市> 查看未来4天天气预报\n"
             "/weather help            显示本帮助\n"
         )
         yield event.plain_result(msg)
@@ -318,7 +318,7 @@ class WeatherPlugin(Star):
                 f"当前天气：\n"
                 f"城市: {data['city']}\n"
                 f"天气: {data['desc']}\n"
-                f"温度: {data['temp']}℃ (体感: {data['feels_like']}℃)\n"
+                f"温度: {data['temp']}℃\n"
                 f"湿度: {data['humidity']}%\n"
                 f"风速: {data['wind_speed']} km/h"
             )
@@ -354,6 +354,7 @@ class WeatherPlugin(Star):
                 text += "生活指数:\n"
                 for s in suggestion_data:
                     text += f"{s['name']}: {s['brief']}\n"
+
             yield event.plain_result(text)
 
     # =============================
@@ -361,15 +362,14 @@ class WeatherPlugin(Star):
     # =============================
     async def get_current_weather_by_city(self, city: str) -> Optional[dict]:
         """
-        调用心知天气 v3/weather/now.json 接口，返回城市当前实况
+        调用高德开放平台API，返回城市当前实况
         """
         self.logger.debug(f"get_current_weather_by_city city={city}")
-        url = "https://api.seniverse.com/v3/weather/now.json"
+        url = "https://restapi.amap.com/v3/weather/weatherInfo"
         params = {
             "key": self.api_key,
-            "location": city,
-            "language": "zh-Hans",
-            "unit": "c"
+            "city": city,
+            "extensions": "base"
         }
         self.logger.debug(f"Requesting: {url}, params={params}")
         try:
@@ -378,24 +378,23 @@ class WeatherPlugin(Star):
                     self.logger.debug(f"Response status: {resp.status}")
                     if resp.status == 200:
                         data = await resp.json()
-                        self.logger.debug(f"Seniverse now raw data: {data}")
-                        results = data.get("results", [])
-                        if not results:
+                        self.logger.debug(f"Amap now raw data: {data}")
+                        lives = data.get("lives", [])
+                        if not lives:
                             return None
-                        now = results[0].get("now", {})
-                        desc = now.get("text", "未知")
+                        now = lives[0]
+                        desc = now.get("weather", "未知")
                         temp = now.get("temperature", "0")
-                        feels_like = now.get("feels_like", temp)
                         humidity = now.get("humidity", "0")
-                        wind_speed = now.get("wind_speed", "0")
+                        wind_speed = now.get("windpower", "0")
                         return {
                             "city": city,
                             "desc": desc,
                             "temp": temp,
-                            "feels_like": feels_like,
                             "humidity": humidity,
                             "wind_speed": wind_speed
                         }
+
                     else:
                         self.logger.error(f"get_current_weather_by_city status={resp.status}")
                         return None
@@ -406,17 +405,14 @@ class WeatherPlugin(Star):
 
     async def get_forecast_weather_by_city(self, city: str) -> Optional[List[dict]]:
         """
-        调用心知天气 v3/weather/daily.json 接口，获取3天天气预报
+        调用高德开放平台API，获取未来4天天气预报
         """
         self.logger.debug(f"get_forecast_weather_by_city city={city}")
-        url = "https://api.seniverse.com/v3/weather/daily.json"
+        url = "https://restapi.amap.com/v3/weather/weatherInfo"
         params = {
             "key": self.api_key,
-            "location": city,
-            "language": "zh-Hans",
-            "unit": "c",
-            "start": 0,
-            "days": 3
+            "city": city,
+            "extensions": "all"
         }
         self.logger.debug(f"Requesting forecast: {url}, params={params}")
         try:
@@ -425,22 +421,23 @@ class WeatherPlugin(Star):
                     self.logger.debug(f"Response status: {resp.status}")
                     if resp.status == 200:
                         data = await resp.json()
-                        self.logger.debug(f"Seniverse daily raw data: {data}")
-                        results = data.get("results", [])
-                        if not results:
+                        self.logger.debug(f"Amap daily raw data: {data}")
+                        forecasts = data.get("forecasts", [])
+                        if not forecasts:
                             return None
-                        daily_list = results[0].get("daily", [])
+                        daily_list = forecasts[0].get("casts", [])
                         if not daily_list:
                             return None
                         result = []
                         for day_data in daily_list:
                             date = day_data.get("date", "1970-01-01")
-                            text_day = day_data.get("text_day", "未知")
-                            text_night = day_data.get("text_night", "未知")
-                            high = day_data.get("high", "0")
-                            low = day_data.get("low", "0")
+                            text_day = day_data.get("dayweather", "未知")
+                            text_night = day_data.get("nightweather", "未知")
+
+                            high = day_data.get("daytemp", "0")
+                            low = day_data.get("nighttemp", "0")
                             humidity = day_data.get("humidity", "0")
-                            wind_speed = day_data.get("wind_speed", "0")
+                            wind_speed = day_data.get("daypower", "0")
                             result.append({
                                 "date": date,
                                 "text_day": text_day,
@@ -461,63 +458,12 @@ class WeatherPlugin(Star):
 
     async def get_life_suggestion_by_city(self, city: str) -> Optional[List[dict]]:
         """
-        调用心知天气 v3/life/suggestion.json 接口，获取生活指数
-        免费版仅返回6项基础指数 (dressing, umbrella, car_washing, flu, sport, uv)，且只包含 brief 信息
+        调用高德开放平台API，获取生活指数
         """
         self.logger.debug(f"get_life_suggestion_by_city city={city}")
-        url = "https://api.seniverse.com/v3/life/suggestion.json"
-        params = {
-            "key": self.api_key,
-            "location": city,
-            "language": "zh-Hans",
-            "days": 1
-        }
-        self.logger.debug(f"Requesting life suggestion: {url}, params={params}")
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url, params=params, timeout=10) as resp:
-                    self.logger.debug(f"Response status: {resp.status}")
-                    if resp.status == 200:
-                        data = await resp.json()
-                        self.logger.debug(f"Seniverse suggestion raw data: {data}")
-                        results = data.get("results", [])
-                        if not results:
-                            return None
-                        suggestion = results[0].get("suggestion", {})
-                        if not suggestion:
-                            return None
-                        final_list = []
-                        for key in ["dressing", "umbrella", "car_washing", "flu", "sport", "uv"]:
-                            info = suggestion.get(key, {})
-                            brief = info.get("brief", "无")
-                            cn_name = self.get_suggestion_cn_name(key)
-                            final_list.append({"name": cn_name, "brief": brief})
-                        return final_list
-                    else:
-                        self.logger.error(f"get_life_suggestion_by_city status={resp.status}")
-                        return None
-        except Exception as e:
-            self.logger.error(f"get_life_suggestion_by_city error: {e}")
-            self.logger.error(traceback.format_exc())
-            return None
+        # 高德开放平台不提供生活指数API，故此功能暂时无法实现
+        return None
 
-    def get_suggestion_cn_name(self, key: str) -> str:
-        """
-        将英文指数 key 映射为直观的中文名称
-        """
-        mapping = {
-            "dressing": "穿衣",
-            "umbrella": "雨伞",
-            "car_washing": "洗车",
-            "flu": "感冒",
-            "sport": "运动",
-            "uv": "紫外线"
-        }
-        return mapping.get(key, key)
-
-    # =============================
-    # 渲染逻辑
-    # =============================
     async def render_current_weather(self, data: dict) -> str:
         """
         渲染当前天气图文信息
@@ -529,7 +475,6 @@ class WeatherPlugin(Star):
                 "city": data["city"],
                 "desc": data["desc"],
                 "temp": data["temp"],
-                "feels_like": data["feels_like"],
                 "humidity": data["humidity"],
                 "wind_speed": data["wind_speed"]
             },
@@ -539,7 +484,7 @@ class WeatherPlugin(Star):
 
     async def render_forecast_weather(self, city: str, days_data: List[dict], suggestions: Optional[List[dict]] = None) -> str:
         """
-        渲染未来3天天气预报及生活指数图文信息
+        渲染未来4天天气预报图文信息
         """
         self.logger.debug(f"render_forecast_weather for city={city}, days={days_data}, suggestions={suggestions}")
         url = await self.html_render(
