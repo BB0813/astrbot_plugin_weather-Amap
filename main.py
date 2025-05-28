@@ -1,5 +1,4 @@
 import aiohttp
-import logging
 import datetime
 from typing import Optional, List, Dict
 import traceback
@@ -10,6 +9,7 @@ from astrbot.api.all import (
     MessageEventResult, llm_tool
 )
 from astrbot.api.event import filter
+from astrbot.api import logger
 
 # ==============================
 # 1) HTML 模板
@@ -183,15 +183,13 @@ class WeatherPlugin(Star):
     """
     def __init__(self, context: Context, config: dict):
         super().__init__(context)
-        self.logger = logging.getLogger("WeatherPlugin")
-        self.logger.setLevel(logging.DEBUG)
         self.config = config
         # 使用配置中的 amap_api_key
         self.api_key = config.get("amap_api_key", "")
         self.default_city = config.get("default_city", "北京")
         # 新增配置项：send_mode，控制发送模式 "image" 或 "text"
         self.send_mode = config.get("send_mode", "image")
-        self.logger.debug(f"WeatherPlugin initialized with API key: {self.api_key}, default_city: {self.default_city}, send_mode: {self.send_mode}")
+        logger.debug(f"WeatherPlugin initialized with API key: {self.api_key}, default_city: {self.default_city}, send_mode: {self.send_mode}")
 
     # =============================
     # 命令组 "weather"
@@ -213,7 +211,7 @@ class WeatherPlugin(Star):
         用法: /weather current <城市>
         示例: /weather current 北京
         """
-        self.logger.info(f"User called /weather current with city={city}")
+        logger.info(f"User called /weather current with city={city}")
         if not city:
             city = self.default_city
         if not self.api_key:
@@ -245,7 +243,7 @@ class WeatherPlugin(Star):
         用法: /weather forecast <城市>
         示例: /weather forecast 北京
         """
-        self.logger.info(f"User called /weather forecast with city={city}")
+        logger.info(f"User called /weather forecast with city={city}")
         if not city:
             city = self.default_city
         if not self.api_key:
@@ -285,7 +283,7 @@ class WeatherPlugin(Star):
         显示天气插件的帮助信息
         用法: /weather help
         """
-        self.logger.info("User called /weather help")
+        logger.info("User called /weather help")
         msg = (
             "=== 高德开放平台插件命令列表 ===\n"
             "/weather current <城市>  查看当前实况\n"
@@ -364,21 +362,21 @@ class WeatherPlugin(Star):
         """
         调用高德开放平台API，返回城市当前实况
         """
-        self.logger.debug(f"get_current_weather_by_city city={city}")
+        logger.debug(f"get_current_weather_by_city city={city}")
         url = "https://restapi.amap.com/v3/weather/weatherInfo"
         params = {
             "key": self.api_key,
             "city": city,
             "extensions": "base"
         }
-        self.logger.debug(f"Requesting: {url}, params={params}")
+        logger.debug(f"Requesting: {url}, params={params}")
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(url, params=params, timeout=10) as resp:
-                    self.logger.debug(f"Response status: {resp.status}")
+                    logger.debug(f"Response status: {resp.status}")
                     if resp.status == 200:
                         data = await resp.json()
-                        self.logger.debug(f"Amap now raw data: {data}")
+                        logger.debug(f"Amap now raw data: {data}")
                         lives = data.get("lives", [])
                         if not lives:
                             return None
@@ -396,32 +394,32 @@ class WeatherPlugin(Star):
                         }
 
                     else:
-                        self.logger.error(f"get_current_weather_by_city status={resp.status}")
+                        logger.error(f"get_current_weather_by_city status={resp.status}")
                         return None
         except Exception as e:
-            self.logger.error(f"get_current_weather_by_city error: {e}")
-            self.logger.error(traceback.format_exc())
+            logger.error(f"get_current_weather_by_city error: {e}")
+            logger.error(traceback.format_exc())
             return None
 
     async def get_forecast_weather_by_city(self, city: str) -> Optional[List[dict]]:
         """
         调用高德开放平台API，获取未来4天天气预报
         """
-        self.logger.debug(f"get_forecast_weather_by_city city={city}")
+        logger.debug(f"get_forecast_weather_by_city city={city}")
         url = "https://restapi.amap.com/v3/weather/weatherInfo"
         params = {
             "key": self.api_key,
             "city": city,
             "extensions": "all"
         }
-        self.logger.debug(f"Requesting forecast: {url}, params={params}")
+        logger.debug(f"Requesting forecast: {url}, params={params}")
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(url, params=params, timeout=10) as resp:
-                    self.logger.debug(f"Response status: {resp.status}")
+                    logger.debug(f"Response status: {resp.status}")
                     if resp.status == 200:
                         data = await resp.json()
-                        self.logger.debug(f"Amap daily raw data: {data}")
+                        logger.debug(f"Amap daily raw data: {data}")
                         forecasts = data.get("forecasts", [])
                         if not forecasts:
                             return None
@@ -449,18 +447,18 @@ class WeatherPlugin(Star):
                             })
                         return result
                     else:
-                        self.logger.error(f"get_forecast_weather_by_city status={resp.status}")
+                        logger.error(f"get_forecast_weather_by_city status={resp.status}")
                         return None
         except Exception as e:
-            self.logger.error(f"get_forecast_weather_by_city error: {e}")
-            self.logger.error(traceback.format_exc())
+            logger.error(f"get_forecast_weather_by_city error: {e}")
+            logger.error(traceback.format_exc())
             return None
 
     async def get_life_suggestion_by_city(self, city: str) -> Optional[List[dict]]:
         """
         调用高德开放平台API，获取生活指数
         """
-        self.logger.debug(f"get_life_suggestion_by_city city={city}")
+        logger.debug(f"get_life_suggestion_by_city city={city}")
         # 高德开放平台不提供生活指数API，故此功能暂时无法实现
         return None
 
@@ -468,7 +466,7 @@ class WeatherPlugin(Star):
         """
         渲染当前天气图文信息
         """
-        self.logger.debug(f"render_current_weather for {data}")
+        logger.debug(f"render_current_weather for {data}")
         url = await self.html_render(
             CURRENT_WEATHER_TEMPLATE,
             {
@@ -486,7 +484,7 @@ class WeatherPlugin(Star):
         """
         渲染未来4天天气预报图文信息
         """
-        self.logger.debug(f"render_forecast_weather for city={city}, days={days_data}, suggestions={suggestions}")
+        logger.debug(f"render_forecast_weather for city={city}, days={days_data}, suggestions={suggestions}")
         url = await self.html_render(
             FORECAST_TEMPLATE,
             {
